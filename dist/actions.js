@@ -36,48 +36,112 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getUsers = exports.createUser = void 0;
+exports.getUserByNick = exports.getUsers = exports.createUser = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
-var Users_1 = require("./entities/Users");
-var utils_1 = require("./utils");
-var createUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userRepo, user, newUser, results;
+var User_1 = require("./entities/User");
+var createUser = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var message_1, user, message_2, newUser, result, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                // important validations to avoid ambiguos errors, the client needs to understand what went wrong
-                if (!req.body.first_name)
-                    throw new utils_1.Exception("Please provide a first_name");
-                if (!req.body.last_name)
-                    throw new utils_1.Exception("Please provide a last_name");
-                if (!req.body.email)
-                    throw new utils_1.Exception("Please provide an email");
-                if (!req.body.password)
-                    throw new utils_1.Exception("Please provide a password");
-                userRepo = typeorm_1.getRepository(Users_1.Users);
-                return [4 /*yield*/, userRepo.findOne({ where: { email: req.body.email } })];
+                // Validate the data recived from the user
+                if (!request.body.nick) {
+                    message_1 = {
+                        message: "Nick value is missing",
+                        status: 400
+                    };
+                    response.status(message_1.status);
+                    return [2 /*return*/, response.json(message_1)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
+                        where: {
+                            nick: request.body.nick
+                        }
+                    })];
             case 1:
                 user = _a.sent();
-                if (user)
-                    throw new utils_1.Exception("Users already exists with this email");
-                newUser = typeorm_1.getRepository(Users_1.Users).create(req.body);
-                return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).save(newUser)];
+                if (user) {
+                    message_2 = {
+                        message: "User Already registered",
+                        status: 400
+                    };
+                    response.status(message_2.status);
+                    return [2 /*return*/, response.json(message_2)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).create({
+                        nick: request.body.nick
+                    })];
             case 2:
-                results = _a.sent();
-                return [2 /*return*/, res.json(results)];
+                newUser = _a.sent();
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).save(newUser)];
+            case 3:
+                result = _a.sent();
+                message = {
+                    message: "User registered correctly",
+                    status: 201,
+                    user: result
+                };
+                response.status(message.status);
+                return [2 /*return*/, response.json(message)];
         }
     });
 }); };
 exports.createUser = createUser;
-var getUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var users;
+var getUsers = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var users, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.getRepository(Users_1.Users).find()];
+            case 0: return [4 /*yield*/, typeorm_1.getRepository(User_1.User).find()];
             case 1:
                 users = _a.sent();
-                return [2 /*return*/, res.json(users)];
+                message = {
+                    message: "Users requested correctly",
+                    status: 200,
+                    users: users
+                };
+                response.status(message.status);
+                return [2 /*return*/, response.json(message)];
         }
     });
 }); };
 exports.getUsers = getUsers;
+var getUserByNick = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var message_3, user, message_4, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // Validation
+                if (!request.params.nick) {
+                    message_3 = {
+                        message: "Missing user nick parameter",
+                        status: 400
+                    };
+                    response.status(message_3.status);
+                    return [2 /*return*/, response.json(message_3)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
+                        where: {
+                            nick: request.params.nick
+                        }
+                    })];
+            case 1:
+                user = _a.sent();
+                if (!user) {
+                    message_4 = {
+                        message: "No user with this nick",
+                        status: 200
+                    };
+                    response.status(message_4.status);
+                    return [2 /*return*/, response.json(message_4)];
+                }
+                message = {
+                    message: "User requested correctly",
+                    status: 200,
+                    user: user
+                };
+                response.status(message.status);
+                return [2 /*return*/, response.json(message)];
+        }
+    });
+}); };
+exports.getUserByNick = getUserByNick;

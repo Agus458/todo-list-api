@@ -8,11 +8,17 @@
  */
 import { Router } from 'express';
 import { safe } from './utils';
-import { createUser } from './actions';
+import * as actions from './actions';
 
 const router = Router();
 
-// signup route, creates a new user in the DB
-router.post('/user', safe(createUser));
+// Route to get all users in the Data Base
+router.get('/user', safe(actions.getUsers));
+
+// Route to get a particular user by nick
+router.get('/user/:nick', safe(actions.getUserByNick));
+
+// Route to create a new user in the Data Base
+router.post('/user', safe(actions.createUser));
 
 export default router;
