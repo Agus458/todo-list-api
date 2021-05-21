@@ -27,4 +27,7 @@ router.put('/todos/user/:nick', safe(actions.updateUser));
 // Route to delete a particular user by its nick
 router.delete('/todos/user/:nick', safe(actions.deleteUser));
 
+// Route to delete a particular task from user
+router.put('/todos/user/:nick/:task', safe(actions.daleteTaskFromUser));
+
 export default router;

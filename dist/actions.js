@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.updateUser = exports.deleteUser = exports.getUserByNick = exports.getUsers = exports.createUser = void 0;
+exports.daleteTaskFromUser = exports.updateUser = exports.deleteUser = exports.getUserByNick = exports.getUsers = exports.createUser = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var User_1 = require("./entities/User");
 var Todo_1 = require("./entities/Todo");
@@ -76,7 +76,7 @@ var createUser = function (request, response) { return __awaiter(void 0, void 0,
             case 2:
                 result = _a.sent();
                 message = {
-                    message: "User created correctly",
+                    message: "User created successfuly",
                     status: 201,
                     response: result
                 };
@@ -94,7 +94,7 @@ var getUsers = function (request, response) { return __awaiter(void 0, void 0, v
             case 1:
                 users = _a.sent();
                 message = {
-                    message: "Users requested correctly",
+                    message: "Users requested successfuly",
                     status: 200,
                     response: users
                 };
@@ -138,7 +138,7 @@ var getUserByNick = function (request, response) { return __awaiter(void 0, void
                     return [2 /*return*/, response.json(message_4)];
                 }
                 message = {
-                    message: "User requested correctly",
+                    message: "User requested successfuly",
                     status: 200,
                     response: user
                 };
@@ -171,8 +171,13 @@ var deleteUser = function (request, response) { return __awaiter(void 0, void 0,
                     message: "No users to remove",
                     status: 200
                 };
-                response.status(message.status);
-                if (!user) return [3 /*break*/, 3];
+                if (!user) {
+                    response.status(message.status);
+                }
+                // delete all the tasks related to the user
+                typeorm_1.getRepository(Todo_1.Todo)["delete"]({
+                    user: user
+                });
                 return [4 /*yield*/, typeorm_1.getRepository(User_1.User)["delete"]({
                         nick: request.params.nick
                     })];
@@ -181,7 +186,6 @@ var deleteUser = function (request, response) { return __awaiter(void 0, void 0,
                 message.response = result;
                 message.message = "User removed successfuly";
                 return [2 /*return*/, response.json(message)];
-            case 3: return [2 /*return*/, response.json(message)];
         }
     });
 }); };
@@ -224,7 +228,7 @@ var updateUser = function (request, response) { return __awaiter(void 0, void 0,
                     }
                 });
                 message = {
-                    message: "Tasks saved succesfuly",
+                    message: "Tasks saved successfuly",
                     status: 201
                 };
                 response.status(message.status);
@@ -233,3 +237,56 @@ var updateUser = function (request, response) { return __awaiter(void 0, void 0,
     });
 }); };
 exports.updateUser = updateUser;
+var daleteTaskFromUser = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var message_8, user, message_9, todo, message_10, result, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!request.params.nick || !request.params.task) {
+                    message_8 = {
+                        message: "Missing nick parameter or task to delete",
+                        status: 400
+                    };
+                    response.status(message_8.status);
+                    return [2 /*return*/, response.json(message_8)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
+                        where: { nick: request.params.nick }
+                    })];
+            case 1:
+                user = _a.sent();
+                if (!user) {
+                    message_9 = {
+                        message: "No user with this nick",
+                        status: 400
+                    };
+                    response.status(message_9.status);
+                    return [2 /*return*/, response.json(message_9)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo).findOne({
+                        where: { user: user, id: request.params.task }
+                    })];
+            case 2:
+                todo = _a.sent();
+                if (!todo) {
+                    message_10 = {
+                        message: "The user has no task with this id",
+                        status: 400
+                    };
+                    response.status(message_10.status);
+                    return [2 /*return*/, response.json(message_10)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(Todo_1.Todo)["delete"](todo)];
+            case 3:
+                result = _a.sent();
+                message = {
+                    message: "Task removed successfuly",
+                    status: 200,
+                    response: result
+                };
+                response.status(message.status);
+                return [2 /*return*/, response.json(message)];
+        }
+    });
+}); };
+exports.daleteTaskFromUser = daleteTaskFromUser;
