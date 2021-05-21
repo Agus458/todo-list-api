@@ -1,7 +1,7 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany, Table } from "typeorm";
 import { Todo } from "./Todo";
 
-@Entity()
+@Entity('users')
 export class User extends BaseEntity {
 
     @PrimaryGeneratedColumn()
@@ -10,6 +10,8 @@ export class User extends BaseEntity {
     @Column()
     nick: string;
 
-    @OneToMany(() => Todo, todo => todo.user)
+    @OneToMany(() => Todo, todo => todo.user, {
+        cascade: true
+    })
     todos: Todo[];
 }

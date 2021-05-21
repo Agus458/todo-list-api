@@ -36,9 +36,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.getUserByNick = exports.getUsers = exports.createUser = void 0;
+exports.updateUser = exports.deleteUser = exports.getUserByNick = exports.getUsers = exports.createUser = void 0;
 var typeorm_1 = require("typeorm"); // getRepository"  traer una tabla de la base de datos asociada al objeto
 var User_1 = require("./entities/User");
+var Todo_1 = require("./entities/Todo");
 var createUser = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
     var message_1, user, message_2, newUser, result, message;
     return __generator(this, function (_a) {
@@ -62,24 +63,22 @@ var createUser = function (request, response) { return __awaiter(void 0, void 0,
                 user = _a.sent();
                 if (user) {
                     message_2 = {
-                        message: "User Already registered",
+                        message: "Nick already exists",
                         status: 400
                     };
                     response.status(message_2.status);
                     return [2 /*return*/, response.json(message_2)];
                 }
-                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).create({
-                        nick: request.body.nick
-                    })];
-            case 2:
-                newUser = _a.sent();
+                newUser = typeorm_1.getRepository(User_1.User).create({
+                    nick: request.body.nick
+                });
                 return [4 /*yield*/, typeorm_1.getRepository(User_1.User).save(newUser)];
-            case 3:
+            case 2:
                 result = _a.sent();
                 message = {
-                    message: "User registered correctly",
+                    message: "User created correctly",
                     status: 201,
-                    user: result
+                    response: result
                 };
                 response.status(message.status);
                 return [2 /*return*/, response.json(message)];
@@ -97,8 +96,11 @@ var getUsers = function (request, response) { return __awaiter(void 0, void 0, v
                 message = {
                     message: "Users requested correctly",
                     status: 200,
-                    users: users
+                    response: users
                 };
+                if (users.length == 0) {
+                    message.message = "No users in the database";
+                }
                 response.status(message.status);
                 return [2 /*return*/, response.json(message)];
         }
@@ -122,7 +124,8 @@ var getUserByNick = function (request, response) { return __awaiter(void 0, void
                 return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
                         where: {
                             nick: request.params.nick
-                        }
+                        },
+                        relations: ['todos']
                     })];
             case 1:
                 user = _a.sent();
@@ -137,7 +140,7 @@ var getUserByNick = function (request, response) { return __awaiter(void 0, void
                 message = {
                     message: "User requested correctly",
                     status: 200,
-                    user: user
+                    response: user
                 };
                 response.status(message.status);
                 return [2 /*return*/, response.json(message)];
@@ -145,3 +148,88 @@ var getUserByNick = function (request, response) { return __awaiter(void 0, void
     });
 }); };
 exports.getUserByNick = getUserByNick;
+var deleteUser = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var message_5, user, message, result;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // Parameters validation
+                if (!request.params.nick) {
+                    message_5 = {
+                        message: "Missing parameters",
+                        status: 400
+                    };
+                    response.status(message_5.status);
+                    return [2 /*return*/, response.json(message_5)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
+                        where: { nick: request.params.nick }
+                    })];
+            case 1:
+                user = _a.sent();
+                message = {
+                    message: "No users to remove",
+                    status: 200
+                };
+                response.status(message.status);
+                if (!user) return [3 /*break*/, 3];
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User)["delete"]({
+                        nick: request.params.nick
+                    })];
+            case 2:
+                result = _a.sent();
+                message.response = result;
+                message.message = "User removed successfuly";
+                return [2 /*return*/, response.json(message)];
+            case 3: return [2 /*return*/, response.json(message)];
+        }
+    });
+}); };
+exports.deleteUser = deleteUser;
+var updateUser = function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
+    var message_6, user, message_7, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // validation of todos list and user nick
+                if (!request.params.nick || !request.body.todos) {
+                    message_6 = {
+                        message: "Missing nick parameter or todos list in body",
+                        status: 400
+                    };
+                    response.status(message_6.status);
+                    return [2 /*return*/, response.json(message_6)];
+                }
+                return [4 /*yield*/, typeorm_1.getRepository(User_1.User).findOne({
+                        where: { nick: request.params.nick }
+                    })];
+            case 1:
+                user = _a.sent();
+                if (!user) {
+                    message_7 = {
+                        message: "User is not registered in the database",
+                        status: 400
+                    };
+                    response.status(message_7.status);
+                    return [2 /*return*/, response.json(message_7)];
+                }
+                request.body.todos.forEach(function (todo) {
+                    if (todo.label) {
+                        var newTodo = typeorm_1.getRepository(Todo_1.Todo).create({
+                            label: todo.label,
+                            done: todo.done,
+                            user: user
+                        });
+                        typeorm_1.getRepository(Todo_1.Todo).save(newTodo);
+                    }
+                });
+                message = {
+                    message: "Tasks saved succesfuly",
+                    status: 201
+                };
+                response.status(message.status);
+                return [2 /*return*/, response.json(message)];
+        }
+    });
+}); };
+exports.updateUser = updateUser;

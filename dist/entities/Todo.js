@@ -41,7 +41,9 @@ var Todo = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Todo.prototype, "label");
     __decorate([
-        typeorm_1.Column(),
+        typeorm_1.Column({
+            "default": false
+        }),
         __metadata("design:type", Boolean)
     ], Todo.prototype, "done");
     __decorate([
@@ -49,7 +51,7 @@ var Todo = /** @class */ (function (_super) {
         __metadata("design:type", User_1.User)
     ], Todo.prototype, "user");
     Todo = __decorate([
-        typeorm_1.Entity()
+        typeorm_1.Entity('todos')
     ], Todo);
     return Todo;
 }(typeorm_1.BaseEntity));

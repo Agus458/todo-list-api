@@ -41,11 +41,13 @@ var User = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], User.prototype, "nick");
     __decorate([
-        typeorm_1.OneToMany(function () { return Todo_1.Todo; }, function (todo) { return todo.user; }),
+        typeorm_1.OneToMany(function () { return Todo_1.Todo; }, function (todo) { return todo.user; }, {
+            cascade: true
+        }),
         __metadata("design:type", Array)
     ], User.prototype, "todos");
     User = __decorate([
-        typeorm_1.Entity()
+        typeorm_1.Entity('users')
     ], User);
     return User;
 }(typeorm_1.BaseEntity));

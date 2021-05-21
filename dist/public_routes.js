@@ -31,9 +31,13 @@ var utils_1 = require("./utils");
 var actions = __importStar(require("./actions"));
 var router = express_1.Router();
 // Route to get all users in the Data Base
-router.get('/user', utils_1.safe(actions.getUsers));
+router.get('/todos/user/', utils_1.safe(actions.getUsers));
 // Route to get a particular user by nick
-router.get('/user/:nick', utils_1.safe(actions.getUserByNick));
+router.get('/todos/user/:nick', utils_1.safe(actions.getUserByNick));
 // Route to create a new user in the Data Base
-router.post('/user', utils_1.safe(actions.createUser));
+router.post('/todos/user/', utils_1.safe(actions.createUser));
+// Route to add tasks to a user
+router.put('/todos/user/:nick', utils_1.safe(actions.updateUser));
+// Route to delete a particular user by its nick
+router["delete"]('/todos/user/:nick', utils_1.safe(actions.deleteUser));
 exports["default"] = router;

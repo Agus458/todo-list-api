@@ -1,7 +1,7 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User";
 
-@Entity()
+@Entity('todos')
 export class Todo extends BaseEntity {
 
     @PrimaryGeneratedColumn()
@@ -10,7 +10,9 @@ export class Todo extends BaseEntity {
     @Column()
     label: string;
 
-    @Column()
+    @Column({
+        default: false
+    })
     done: boolean;
     
     @ManyToOne(() => User, user => user.todos)
